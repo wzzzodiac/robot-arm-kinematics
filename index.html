@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#050908">
-  <meta name="description" content="Interactive 2-DOF / 3-DOF planar robot arm kinematics, gripper and pick-and-place laboratory.">
-  <title>Robot Arm Kinematics Lab v2</title>
+  <meta name="description" content="Interactive planar robot arm lab with FK/IK, collision detection, obstacles, teach points and programmable motion sequences.">
+  <title>Robot Arm Kinematics Lab v3</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦾</text></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -13,9 +13,9 @@
   <main class="shell">
     <header class="hero">
       <div>
-        <p class="eyebrow">ROBOTICS LAB // KINEMATICS WORKBENCH // V2</p>
+        <p class="eyebrow">ROBOTICS LAB // KINEMATICS WORKBENCH // V3</p>
         <h1>Robot Arm Kinematics</h1>
-        <p class="subtitle">2-DOF / 3-DOF planar manipulator with FK, analytic IK, elbow configuration, joint limits, TCP trajectory and a gripper that can actually move parts around.</p>
+        <p class="subtitle">2-DOF / 3-DOF planar manipulator with FK, analytic IK, joint limits, collision detection, obstacles, teach points and simple programmable motion sequences.</p>
       </div>
       <a class="github-link" href="https://github.com/wzzzodiac/robot-arm-kinematics" target="_blank" rel="noreferrer">github ↗</a>
     </header>
@@ -23,19 +23,19 @@
     <section class="control-panel" aria-label="Robot controls">
       <div class="control-group mode-group">
         <span class="panel-label">CONTROL MODE</span>
-        <div class="segmented" role="group" aria-label="Control mode">
+        <div class="segmented">
           <button class="mode-button active" id="fkMode" type="button">FK / MANUAL</button>
           <button class="mode-button" id="ikMode" type="button">IK / TARGET</button>
         </div>
 
         <span class="panel-label mini-label">ARM MODEL</span>
-        <div class="segmented" role="group" aria-label="Arm model">
+        <div class="segmented">
           <button class="model-button" id="dof2Button" type="button">2-DOF</button>
           <button class="model-button active" id="dof3Button" type="button">3-DOF</button>
         </div>
 
         <span class="panel-label mini-label">IK BRANCH</span>
-        <div class="segmented" role="group" aria-label="IK branch">
+        <div class="segmented">
           <button class="elbow-button active" id="elbowUpButton" type="button">ELBOW UP</button>
           <button class="elbow-button" id="elbowDownButton" type="button">ELBOW DOWN</button>
         </div>
@@ -63,11 +63,9 @@
         <span class="panel-label">TOOL ORIENTATION</span>
         <label for="toolAngle">TCP φ <output id="toolAngleValue">0°</output></label>
         <input id="toolAngle" type="range" min="-180" max="180" value="0" step="1">
-        <p class="control-hint">In 3-DOF IK, the wrist is solved so the gripper reaches both XY and this orientation.</p>
+        <p class="control-hint">3-DOF IK solves XY and gripper orientation. Every pose is checked against joint limits and obstacles.</p>
         <div class="limit-readout">
-          <span>J1 ±160°</span>
-          <span>J2 ±145°</span>
-          <span>J3 ±135°</span>
+          <span>J1 ±160°</span><span>J2 ±145°</span><span>J3 ±135°</span>
         </div>
       </div>
 
@@ -87,7 +85,7 @@
           <span id="modeReadout">MODE: FK // 3-DOF</span>
         </div>
         <canvas id="armCanvas" width="960" height="620" aria-label="Interactive robot arm simulation"></canvas>
-        <p class="stage-help"><strong>FK:</strong> move the joint sliders. <strong>IK:</strong> click a target. Change elbow branch to see the alternate solution. In 3-DOF mode, φ controls gripper orientation. Click a part to select it, then use the gripper or AUTO PICK + PLACE.</p>
+        <p class="stage-help"><strong>FK:</strong> move the joints. <strong>IK:</strong> click a target. Obstacles are solid: any link intersection stops motion. Click a part to select it. Use Teach Mode below to save poses and replay a sequence.</p>
       </div>
 
       <aside class="telemetry-card">
@@ -101,37 +99,65 @@
           <div class="telemetry"><span>END Y</span><strong id="teleY">0</strong></div>
           <div class="telemetry"><span>ERROR</span><strong id="teleError">—</strong></div>
           <div class="telemetry"><span>BRANCH</span><strong id="teleBranch">UP</strong></div>
+          <div class="telemetry"><span>COLLISION</span><strong id="teleCollision">CLEAR</strong></div>
+          <div class="telemetry"><span>PROGRAM</span><strong id="teleProgram">IDLE</strong></div>
           <div class="telemetry wide"><span>GRIPPER</span><strong id="teleGripper">OPEN</strong></div>
           <div class="telemetry wide"><span>PAYLOAD</span><strong id="telePayload">NONE</strong></div>
           <div class="telemetry wide"><span>SOLVER</span><strong id="teleSolver">MANUAL FK</strong></div>
         </div>
-
         <div class="status-box" id="statusBox">System ready. Physics has not complained yet.</div>
-
         <div class="legend">
           <span><i class="swatch target"></i> target</span>
           <span><i class="swatch trail"></i> TCP trajectory</span>
-          <span><i class="swatch workspace-swatch"></i> reachable workspace</span>
+          <span><i class="swatch obstacle"></i> obstacle</span>
+          <span><i class="swatch collision"></i> collision</span>
           <span><i class="swatch part"></i> movable part</span>
           <span><i class="swatch drop"></i> drop zone</span>
         </div>
       </aside>
     </section>
 
+    <section class="lab-panels">
+      <article class="lab-card">
+        <div class="lab-card-head">
+          <div><p class="panel-label">COLLISION LAB</p><h2>Obstacles</h2></div>
+          <span id="obstacleCount">3 ACTIVE</span>
+        </div>
+        <p class="lab-copy">The arm links are treated as line segments with thickness. Motions are sampled before execution; if a link would enter an obstacle, the move is rejected.</p>
+        <div class="lab-actions">
+          <button id="toggleObstaclesButton" type="button">HIDE OBSTACLES</button>
+          <button id="randomObstaclesButton" type="button">RANDOMIZE</button>
+          <button id="resetObstaclesButton" type="button">RESET</button>
+        </div>
+      </article>
+
+      <article class="lab-card teach-card">
+        <div class="lab-card-head">
+          <div><p class="panel-label">TEACH MODE</p><h2>Program sequence</h2></div>
+          <span id="poseCount">0 / 8 POSES</span>
+        </div>
+        <p class="lab-copy">Move the robot into a pose, save it, repeat. RUN PROGRAM replays the taught positions in order while still respecting collision checks.</p>
+        <div class="lab-actions teach-actions">
+          <button id="savePoseButton" type="button">SAVE POSE</button>
+          <button id="deletePoseButton" type="button">DELETE LAST</button>
+          <button id="clearProgramButton" type="button">CLEAR PROGRAM</button>
+          <button class="primary" id="runProgramButton" type="button">RUN PROGRAM</button>
+          <button id="stopProgramButton" type="button" disabled>STOP</button>
+        </div>
+        <div id="programList" class="program-list"><div class="program-empty">NO TAUGHT POSITIONS</div></div>
+      </article>
+    </section>
+
     <section class="notes">
-      <div>
-        <p class="panel-label">MODEL NOTE</p>
-        <h2>What changed in v2?</h2>
-      </div>
-      <p>The arm can now switch between two and three revolute joints. The 2-DOF solver uses the classic analytic elbow-up / elbow-down solutions. In 3-DOF mode, the requested TCP orientation defines a wrist point; the first two joints solve that point analytically and the third joint completes the requested orientation. Every solution is checked against joint limits before the robot moves.</p>
+      <div><p class="panel-label">MODEL NOTE</p><h2>What changed in v3?</h2></div>
+      <p>Collision detection now checks each robot link against rectangular obstacles before and during motion. Teach Mode stores joint-space poses including gripper state, then replays them as a simple industrial-style sequence. The collision guard stays active during automatic pick-and-place and taught programs, so the browser robot can finally refuse bad engineering decisions.</p>
     </section>
 
     <footer>
-      <span>2R / 3R PLANAR ARM // ANALYTIC IK // JOINT LIMITS</span>
+      <span>2R / 3R PLANAR ARM // IK // COLLISION GUARD // TEACH PROGRAM</span>
       <span>No industrial robots were endangered during development.</span>
     </footer>
   </main>
-
   <script src="script.js"></script>
 </body>
 </html>
