@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050908">
+  <meta name="description" content="Interactive 2-link robot arm kinematics and pick-and-place laboratory.">
+  <title>Robot Arm Kinematics Lab</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦾</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">ROBOTICS LAB // KINEMATICS WORKBENCH</p>
+        <h1>Robot Arm Kinematics</h1>
+        <p class="subtitle">2-link planar manipulator with forward/inverse kinematics, a gripper and a tiny pick-and-place problem because sliders alone were not enough XD.</p>
+      </div>
+      <a class="github-link" href="https://github.com/wzzzodiac/robot-arm-kinematics" target="_blank" rel="noreferrer">github ↗</a>
+    </header>
+
+    <section class="control-panel" aria-label="Robot controls">
+      <div class="control-group mode-group">
+        <span class="panel-label">CONTROL MODE</span>
+        <div class="segmented" role="group" aria-label="Control mode">
+          <button class="mode-button active" id="fkMode" type="button">FK / MANUAL</button>
+          <button class="mode-button" id="ikMode" type="button">IK / TARGET</button>
+        </div>
+      </div>
+
+      <div class="control-group sliders">
+        <label for="theta1">JOINT 1 <output id="theta1Value">30°</output></label>
+        <input id="theta1" type="range" min="-170" max="170" value="30" step="1">
+        <label for="theta2">JOINT 2 <output id="theta2Value">55°</output></label>
+        <input id="theta2" type="range" min="-170" max="170" value="55" step="1">
+      </div>
+
+      <div class="control-group links">
+        <label for="link1">LINK 1 <output id="link1Value">180</output></label>
+        <input id="link1" type="range" min="110" max="220" value="180" step="5">
+        <label for="link2">LINK 2 <output id="link2Value">150</output></label>
+        <input id="link2" type="range" min="90" max="200" value="150" step="5">
+      </div>
+
+      <div class="button-row">
+        <button id="homeButton" type="button">HOME</button>
+        <button id="randomButton" type="button">RANDOM TARGET</button>
+        <button id="gripperButton" type="button">CLOSE GRIPPER</button>
+        <button class="primary" id="pickPlaceButton" type="button">AUTO PICK + PLACE</button>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="stage-card">
+        <div class="stage-head">
+          <span>SIMULATION PLANE // XY</span>
+          <span id="modeReadout">MODE: FK</span>
+        </div>
+        <canvas id="armCanvas" width="900" height="590" aria-label="Interactive robot arm simulation"></canvas>
+        <p class="stage-help"><strong>FK:</strong> move the sliders. <strong>IK:</strong> click anywhere in the workspace. Click a part to select it. The gripper can carry a selected part when it is close enough.</p>
+      </div>
+
+      <aside class="telemetry-card">
+        <p class="panel-label">LIVE TELEMETRY</p>
+        <div class="telemetry-grid">
+          <div class="telemetry"><span>θ1</span><strong id="teleTheta1">30.0°</strong></div>
+          <div class="telemetry"><span>θ2</span><strong id="teleTheta2">55.0°</strong></div>
+          <div class="telemetry"><span>END X</span><strong id="teleX">0</strong></div>
+          <div class="telemetry"><span>END Y</span><strong id="teleY">0</strong></div>
+          <div class="telemetry"><span>ERROR</span><strong id="teleError">—</strong></div>
+          <div class="telemetry"><span>GRIPPER</span><strong id="teleGripper">OPEN</strong></div>
+          <div class="telemetry wide"><span>PAYLOAD</span><strong id="telePayload">NONE</strong></div>
+          <div class="telemetry wide"><span>SOLVER</span><strong id="teleSolver">MANUAL FK</strong></div>
+        </div>
+
+        <div class="status-box" id="statusBox">System ready. Physics has not complained yet.</div>
+
+        <div class="legend">
+          <span><i class="swatch target"></i> target</span>
+          <span><i class="swatch part"></i> movable part</span>
+          <span><i class="swatch drop"></i> drop zone</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="notes">
+      <div>
+        <p class="panel-label">MODEL NOTE</p>
+        <h2>What is actually happening?</h2>
+      </div>
+      <p>Forward kinematics computes the end-effector position from θ1 and θ2. Inverse kinematics does the opposite: given an XY target, the solver calculates a valid joint configuration for the two-link arm. Targets outside the reachable workspace are rejected instead of negotiating with mathematics.</p>
+    </section>
+
+    <footer>
+      <span>2-DOF PLANAR ARM / ANALYTIC IK</span>
+      <span>No industrial robots were endangered during development.</span>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
