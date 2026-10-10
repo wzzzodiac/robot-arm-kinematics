@@ -3,24 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#050908">
+  <meta name="theme-color" content="#eeeee7">
   <meta name="description" content="Interactive planar robot arm lab with FK/IK, collision detection, obstacles, teach points and programmable motion sequences.">
-  <title>Robot Arm Kinematics Lab v3</title>
+  <title>AXIS — Robot Arm Studio</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦾</text></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="shell">
     <header class="hero">
-      <div>
-        <p class="eyebrow">ROBOTICS LAB // KINEMATICS WORKBENCH // V3</p>
-        <h1>Robot Arm Kinematics</h1>
-        <p class="subtitle">2-DOF / 3-DOF planar manipulator with FK, analytic IK, joint limits, collision detection, obstacles, teach points and simple programmable motion sequences.</p>
-      </div>
-      <a class="github-link" href="https://github.com/wzzzodiac/robot-arm-kinematics" target="_blank" rel="noreferrer">github ↗</a>
+      <a class="brand" href="https://wzzzodiac.github.io/"><span class="brand-mark">↗</span> AXIS<span class="brand-sub">ROBOT STUDIO</span></a>
+      <nav><a href="#program">Teach a sequence</a><a href="https://github.com/wzzzodiac/robot-arm-kinematics" target="_blank" rel="noreferrer">Source ↗</a><a href="https://wzzzodiac.github.io/">Back to Hub ↗</a></nav>
     </header>
-
-    <section class="control-panel" aria-label="Robot controls">
+    <div class="intro"><div><p class="eyebrow">KINEMATICS, MADE TANGIBLE</p><h1>Precision in motion<span>.</span></h1></div><p>A small robot. An open workbench.<br>Move, teach, and see the maths come alive.</p></div>
+    <div class="studio-layout">
+    <section class="workspace">
+      <div class="stage-card">
+        <div class="stage-head">
+          <span><i class="live-dot"></i> WORKCELL 01</span>
+          <span id="modeReadout">MODE: FK // 3-DOF</span>
+        </div>
+        <div class="scene-wrap"><div id="sceneHost" aria-label="3D robot workbench"></div>
+        <canvas id="armCanvas" width="960" height="620" aria-label="Interactive planar robot simulation" hidden></canvas>
+        <div class="scene-caption"><span class="scene-kicker">AX—03 / PLANAR MANIPULATOR</span><strong>Your next move.</strong><span id="sceneHint">Drag to orbit · Scroll to zoom</span></div>
+        <div class="scene-badge" id="assetState">ASSEMBLING STUDIO…</div>
+        <div class="view-tools" aria-label="Scene controls"><button id="orbitView" class="active" type="button">Orbit</button><button id="topView" type="button">Top</button><button id="view2d" type="button">2D plan</button><button id="view3d" type="button" hidden>3D studio</button><button id="zoomIn" type="button" aria-label="Zoom in">＋</button><button id="zoomOut" type="button" aria-label="Zoom out">−</button></div>
+        <div class="axis-note">X → &nbsp; Y ↗ &nbsp; / &nbsp; PLANAR XY</div></div>
+      <div class="button-row">
+        <button id="homeButton" type="button">HOME</button>
+        <button id="randomButton" type="button">RANDOM TARGET</button>
+        <button id="gripperButton" type="button">CLOSE GRIPPER</button>
+        <button id="clearTrailButton" type="button">CLEAR TCP TRAIL</button>
+        <button class="primary" id="pickPlaceButton" type="button">AUTO PICK + PLACE</button>
+      </div>
+        <p class="stage-help"><strong>Make a move.</strong> Adjust the joints, or switch to IK and tap the table to set a target. Drag to orbit. Select a coloured part for pick & place.</p>
+      </div>
+    </section>
+    <section class="control-panel" aria-label="Robot controls"><div class="panel-heading"><span>01 / MOTION CONTROL</span><span class="live-dot">LIVE</span></div>
       <div class="control-group mode-group">
         <span class="panel-label">CONTROL MODE</span>
         <div class="segmented">
@@ -50,7 +69,7 @@
         <input class="joint3-control" id="theta3" type="range" min="-135" max="135" value="-35" step="1">
       </div>
 
-      <div class="control-group links">
+      <details class="geometry"><summary>Geometry & tool orientation <span>＋</span></summary>      <div class="control-group links">
         <label for="link1">LINK 1 <output id="link1Value">180</output></label>
         <input id="link1" type="range" min="110" max="220" value="180" step="5">
         <label for="link2">LINK 2 <output id="link2Value">150</output></label>
@@ -69,27 +88,11 @@
         </div>
       </div>
 
-      <div class="button-row">
-        <button id="homeButton" type="button">HOME</button>
-        <button id="randomButton" type="button">RANDOM TARGET</button>
-        <button id="gripperButton" type="button">CLOSE GRIPPER</button>
-        <button id="clearTrailButton" type="button">CLEAR TCP TRAIL</button>
-        <button class="primary" id="pickPlaceButton" type="button">AUTO PICK + PLACE</button>
-      </div>
+</details>
     </section>
-
-    <section class="workspace">
-      <div class="stage-card">
-        <div class="stage-head">
-          <span>SIMULATION PLANE // XY</span>
-          <span id="modeReadout">MODE: FK // 3-DOF</span>
-        </div>
-        <canvas id="armCanvas" width="960" height="620" aria-label="Interactive robot arm simulation"></canvas>
-        <p class="stage-help"><strong>FK:</strong> move the joints. <strong>IK:</strong> click a target. Obstacles are solid: any link intersection stops motion. Click a part to select it. Use Teach Mode below to save poses and replay a sequence.</p>
-      </div>
-
+    </div>
       <aside class="telemetry-card">
-        <p class="panel-label">LIVE TELEMETRY</p>
+        <p class="panel-label">02 / LIVE TELEMETRY</p>
         <div class="telemetry-grid">
           <div class="telemetry"><span>θ1</span><strong id="teleTheta1">30.0°</strong></div>
           <div class="telemetry"><span>θ2</span><strong id="teleTheta2">55.0°</strong></div>
@@ -105,7 +108,7 @@
           <div class="telemetry wide"><span>PAYLOAD</span><strong id="telePayload">NONE</strong></div>
           <div class="telemetry wide"><span>SOLVER</span><strong id="teleSolver">MANUAL FK</strong></div>
         </div>
-        <div class="status-box" id="statusBox">System ready. Physics has not complained yet.</div>
+        <div role="status" aria-live="polite" class="status-box" id="statusBox">System ready. Physics has not complained yet.</div>
         <div class="legend">
           <span><i class="swatch target"></i> target</span>
           <span><i class="swatch trail"></i> TCP trajectory</span>
@@ -115,12 +118,11 @@
           <span><i class="swatch drop"></i> drop zone</span>
         </div>
       </aside>
-    </section>
 
-    <section class="lab-panels">
+    <section class="lab-panels" id="program">
       <article class="lab-card">
         <div class="lab-card-head">
-          <div><p class="panel-label">COLLISION LAB</p><h2>Obstacles</h2></div>
+          <div><p class="panel-label">03 / WORKSPACE</p><h2>Obstacles</h2></div>
           <span id="obstacleCount">3 ACTIVE</span>
         </div>
         <p class="lab-copy">The arm links are treated as line segments with thickness. Motions are sampled before execution; if a link would enter an obstacle, the move is rejected.</p>
@@ -133,7 +135,7 @@
 
       <article class="lab-card teach-card">
         <div class="lab-card-head">
-          <div><p class="panel-label">TEACH MODE</p><h2>Program sequence</h2></div>
+          <div><p class="panel-label">04 / TEACH MODE</p><h2>Program sequence</h2></div>
           <span id="poseCount">0 / 8 POSES</span>
         </div>
         <p class="lab-copy">Move the robot into a pose, save it, repeat. RUN PROGRAM replays the taught positions in order while still respecting collision checks.</p>
@@ -149,8 +151,8 @@
     </section>
 
     <section class="notes">
-      <div><p class="panel-label">MODEL NOTE</p><h2>What changed in v3?</h2></div>
-      <p>Collision detection now checks each robot link against rectangular obstacles before and during motion. Teach Mode stores joint-space poses including gripper state, then replays them as a simple industrial-style sequence. The collision guard stays active during automatic pick-and-place and taught programs, so the browser robot can finally refuse bad engineering decisions.</p>
+      <div><p class="panel-label">MODEL NOTE</p><h2>A real model. A planar world.</h2></div>
+      <p>The 3D arm follows the same analytic 2R / 3R solver as the plan view. Height is presentation only: collision checks use thick line segments against XY rectangles. This is an educational kinematics studio, not a physical robot controller. Teach up to eight poses and replay your own choreography.</p>
     </section>
 
     <footer>
@@ -159,5 +161,7 @@
     </footer>
   </main>
   <script src="script.js"></script>
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+  <script type="module" src="studio.js"></script>
 </body>
 </html>
