@@ -1,0 +1,30 @@
+{
+  "checks": [
+    "Manual 30-to-15 degree jump is blocked by intermediate obstacle",
+    "Held payload stays on TCP after link-length change",
+    "Held payload stays on TCP after changing DOF",
+    "No horizontal overflow at 320px",
+    "No horizontal overflow at 768px",
+    "No horizontal overflow at 1024px",
+    "No horizontal overflow at 1920px",
+    "Letterboxed 2D plan maps clicks to solver coordinates correctly"
+  ],
+  "performance": [
+    {
+      "name": "desktop",
+      "samples": 262,
+      "p95Ms": 8.5,
+      "fps": 119.98534530133706,
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "pixelRatio": 1
+    },
+    {
+      "name": "mobile emulation",
+      "samples": 262,
+      "p95Ms": 8.5,
+      "fps": 119.98534530133709,
+      "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "pixelRatio": 1.75
+    }
+  ]
+}

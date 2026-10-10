@@ -1,0 +1,104 @@
+{
+  "checks": [
+    "No desktop horizontal overflow",
+    "Actual GLB hierarchy has J1 > J2 > J3 > TCP",
+    "24 poses: exported TCP matches analytic FK at both DOFs and length extremes",
+    "Idle 3D is rendered on demand",
+    "Pointer drag orbits the camera",
+    "Top view is nearly orthogonal to XY",
+    "Zoom changes camera scale",
+    "Click visible raised part selects correct payload",
+    "3D part target is reached by IK",
+    "Gripper captures part",
+    "Gripper releases part",
+    "Full pick and place completes with obstacle guard enabled",
+    "Unreachable IK is rejected without starting motion",
+    "2D view and telemetry remain available",
+    "3D stops rendering while plan view is active",
+    "Return to 3D preserves solver pose",
+    "Teach sequence replays saved angles",
+    "Operator stop interrupts teach playback",
+    "Teach program is capped at eight poses",
+    "Delete last taught pose",
+    "Clear taught program",
+    "Manual collision guard rejects blocked pose",
+    "2R model hides third link and reparents gripper",
+    "3R model restores third link and TCP parent",
+    "Obstacle toggle affects solver and 3D",
+    "Random obstacle geometry synchronizes",
+    "Repeated pose updates do not allocate GPU resources",
+    "96 original-vs-AXIS solver, FK and collision comparisons identical",
+    "Mobile layout has no horizontal overflow",
+    "Mobile tap selects and reaches a part in 3D",
+    "Unavailable WebGL falls back to usable plan view",
+    "Fallback still provides the analytic solver",
+    "Context loss activates the plan fallback"
+  ],
+  "errors": [],
+  "resources": [],
+  "browser": "155.0.4283.45",
+  "hierarchy": {
+    "AxisRoot": {
+      "parent": "Scene",
+      "children": 9
+    },
+    "J1": {
+      "parent": "AxisRoot",
+      "children": 12
+    },
+    "J2": {
+      "parent": "J1",
+      "children": 12
+    },
+    "J3": {
+      "parent": "J2",
+      "children": 12
+    },
+    "Body1": {
+      "parent": "J1",
+      "children": 9
+    },
+    "Body2": {
+      "parent": "J2",
+      "children": 9
+    },
+    "Body3": {
+      "parent": "J3",
+      "children": 9
+    },
+    "TCP": {
+      "parent": "J3",
+      "children": 5
+    },
+    "FingerL": {
+      "parent": "TCP",
+      "children": 2
+    },
+    "FingerR": {
+      "parent": "TCP",
+      "children": 2
+    }
+  },
+  "rig": {
+    "count": 24,
+    "maxError": 8.286281022897839e-14
+  },
+  "gpu": {
+    "before": {
+      "geometries": 109,
+      "textures": 6
+    },
+    "after": {
+      "geometries": 109,
+      "textures": 6
+    }
+  },
+  "render": {
+    "frame": 166,
+    "calls": 105,
+    "triangles": 43552,
+    "points": 0,
+    "lines": 178
+  },
+  "solverComparisons": 96
+}
